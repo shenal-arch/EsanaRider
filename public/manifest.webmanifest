@@ -1,0 +1,10 @@
+{
+  "name": "ESANA Rider Delivery",
+  "short_name": "ESANA Rider",
+  "description": "View assigned deliveries and confirm completed orders.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#63ac39",
+  "icons": []
+}
