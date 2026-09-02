@@ -21,13 +21,13 @@ describe("rider delivery journey", () => {
     expect(await screen.findByText("#ES-10482")).toBeInTheDocument();
     expect(screen.queryByText("DISPATCHED")).not.toBeInTheDocument();
     expect(screen.queryByText(/ESANA Kitchen ·/)).not.toBeInTheDocument();
-    expect(screen.getByText("12 Scotts Road, #08-11, Singapore 228212")).toBeInTheDocument();
+    expect(screen.getByText("12 Galle Road, Colombo 03, Sri Lanka")).toBeInTheDocument();
     expect(screen.getByText("Maya Fernando")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "+65 9123 4567" })).toHaveAttribute("href", "tel:+6591234567");
     await user.click(screen.getByRole("button", { name: "Start Ride" }));
     expect(screen.getByRole("button", { name: "On route" })).toHaveClass("ride-dock__button--on-route");
     expect(openWindow).toHaveBeenCalledWith(
-      expect.stringContaining("waypoints=12+Scotts+Road"),
+      expect.stringContaining("waypoints=12+Galle+Road"),
       "_blank",
       "noopener,noreferrer",
     );
