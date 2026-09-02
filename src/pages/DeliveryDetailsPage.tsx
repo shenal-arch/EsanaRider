@@ -75,10 +75,9 @@ export function DeliveryDetailsPage() {
       <section className="card order-summary">
         <div className="order-summary__header">
           <h2>#{delivery.orderNumber}</h2>
-          <StatusBadge status={delivery.status} />
+          {completed ? <StatusBadge status={delivery.status} /> : null}
         </div>
         <p className="strong">{delivery.restaurant}</p>
-        <p className="caption">{delivery.branch} branch</p>
       </section>
 
       <section className="card delivery-information">

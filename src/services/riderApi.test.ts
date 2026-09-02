@@ -1,5 +1,5 @@
 import { demoPassword, demoRider } from "../data/demo";
-import { LocalRiderApi } from "./riderApi";
+import { getStoredRideInProgress, LocalRiderApi, setStoredRideInProgress } from "./riderApi";
 
 describe("LocalRiderApi", () => {
   it("authenticates the active demo rider", async () => {
@@ -33,6 +33,21 @@ describe("LocalRiderApi", () => {
 
     await expect(api.markDelivered(delivery.id)).rejects.toMatchObject({ code: "ALREADY_DELIVERED" });
   });
+
+  it("clears the on-route state only after every active delivery is completed", async () => {
+    const api = new LocalRiderApi();
+    await api.login({ identifier: demoRider.email, password: demoPassword, rememberMe: false });
+    setStoredRideInProgress(true);
+    const activeDeliveries = await api.listDeliveries("active");
+
+    for (const delivery of activeDeliveries.slice(0, -1)) {
+      await api.markDelivered(delivery.id);
+      expect(getStoredRideInProgress()).toBe(true);
+    }
+    await api.markDelivered(activeDeliveries.at(-1)!.id);
+
+    expect(getStoredRideInProgress()).toBe(false);
+  }, 10_000);
 
   it("remembers the rider and session when requested", async () => {
     const api = new LocalRiderApi();

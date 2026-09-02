@@ -4,7 +4,7 @@ import { Button } from "../components/Button";
 import { DeliveryCard } from "../components/DeliveryCard";
 import { DeliveryTabs, type DeliveryTab } from "../components/DeliveryTabs";
 import { LoadingState } from "../components/LoadingState";
-import { riderApi } from "../services/riderApi";
+import { getStoredRideInProgress, riderApi, setStoredRideInProgress } from "../services/riderApi";
 import type { Delivery, RiderSession } from "../types";
 
 interface DeliveriesPageProps {
@@ -28,12 +28,18 @@ export function DeliveriesPage({ session, onLogout }: DeliveriesPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
+  const [rideInProgress, setRideInProgress] = useState(() => getStoredRideInProgress());
 
   const loadDeliveries = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      setDeliveries(await riderApi.listDeliveries(tab));
+      const loadedDeliveries = await riderApi.listDeliveries(tab);
+      setDeliveries(loadedDeliveries);
+      if (tab === "active" && loadedDeliveries.length === 0) {
+        setRideInProgress(false);
+        setStoredRideInProgress(false);
+      }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Deliveries could not be loaded.");
     } finally {
@@ -56,11 +62,18 @@ export function DeliveriesPage({ session, onLogout }: DeliveriesPageProps) {
     }
   }
 
+  function handleStartRide() {
+    if (deliveries.length === 0) return;
+    setRideInProgress(true);
+    setStoredRideInProgress(true);
+    window.open(getStartRideUrl(deliveries), "_blank", "noopener,noreferrer");
+  }
+
   const countLabel = `${deliveries.length} ${tab} ${deliveries.length === 1 ? "delivery" : "deliveries"}`;
-  const showStartRide = tab === "active" && !loading && !error && deliveries.length > 0;
+  const showRideButton = tab === "active" && !loading && !error;
 
   return (
-    <main className={`screen deliveries-screen${showStartRide ? " deliveries-screen--with-ride-action" : ""}`}>
+    <main className={`screen deliveries-screen${showRideButton ? " deliveries-screen--with-ride-action" : ""}`}>
       <header className="deliveries-header">
         <div>
           <h1>{getGreeting()}, {session.rider.name}</h1>
@@ -107,16 +120,15 @@ export function DeliveriesPage({ session, onLogout }: DeliveriesPageProps) {
         </section>
       ) : null}
 
-      {showStartRide ? (
+      {showRideButton ? (
         <div className="ride-dock">
-          <a
-            className="button button--primary button--large button--full"
-            href={getStartRideUrl(deliveries)}
-            target="_blank"
-            rel="noreferrer"
+          <Button
+            className={`ride-dock__button${rideInProgress ? " ride-dock__button--on-route" : ""}`}
+            disabled={deliveries.length === 0}
+            onClick={handleStartRide}
           >
-            Start Ride
-          </a>
+            {rideInProgress ? "On route" : "Start Ride"}
+          </Button>
         </div>
       ) : null}
     </main>

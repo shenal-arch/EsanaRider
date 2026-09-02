@@ -577,6 +577,16 @@ a {
   pointer-events: auto;
 }
 
+.ride-dock__button--on-route,
+.ride-dock__button--on-route:hover:not(:disabled) {
+  background: #FF9F00;
+}
+
+.ride-dock__button:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+}
+
 .status-badge {
   display: inline-flex;
   min-height: 28px;
@@ -705,11 +715,6 @@ a {
   min-height: 24px;
   font-size: 14px;
   line-height: 18px;
-}
-
-.order-summary .caption {
-  font-size: 12px;
-  line-height: 16px;
 }
 
 .delivery-information {

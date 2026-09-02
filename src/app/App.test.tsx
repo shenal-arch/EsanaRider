@@ -7,6 +7,7 @@ import { App } from "./App";
 describe("rider delivery journey", () => {
   it("signs in, opens a delivery, and confirms it", async () => {
     const user = userEvent.setup();
+    const openWindow = vi.spyOn(window, "open").mockReturnValue(null);
     render(
       <MemoryRouter initialEntries={["/login"]}>
         <App />
@@ -23,19 +24,28 @@ describe("rider delivery journey", () => {
     expect(screen.getByText("12 Scotts Road, #08-11, Singapore 228212")).toBeInTheDocument();
     expect(screen.getByText("Maya Fernando")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "+65 9123 4567" })).toHaveAttribute("href", "tel:+6591234567");
-    expect(screen.getByRole("link", { name: "Start Ride" })).toHaveAttribute(
-      "href",
+    await user.click(screen.getByRole("button", { name: "Start Ride" }));
+    expect(screen.getByRole("button", { name: "On route" })).toHaveClass("ride-dock__button--on-route");
+    expect(openWindow).toHaveBeenCalledWith(
       expect.stringContaining("waypoints=12+Scotts+Road"),
+      "_blank",
+      "noopener,noreferrer",
     );
     await user.click(screen.getAllByRole("button", { name: "View delivery" })[0]);
 
     expect(await screen.findByRole("heading", { name: "Delivery details" })).toBeInTheDocument();
+    expect(screen.queryByText("DISPATCHED")).not.toBeInTheDocument();
+    expect(screen.queryByText("Orchard branch")).not.toBeInTheDocument();
+    expect(screen.getByText("ESANA Kitchen")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Mark as delivered" }));
     expect(screen.getByRole("dialog", { name: "Confirm delivery" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Confirm delivery" }));
 
     expect(await screen.findByRole("heading", { name: "Delivery completed" })).toBeInTheDocument();
     expect(screen.getByText(/has been marked as delivered/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Back to active deliveries" }));
+    expect(await screen.findByRole("button", { name: "On route" })).toHaveClass("ride-dock__button--on-route");
+    openWindow.mockRestore();
   });
 
   it("resets the password from the login page and signs in with the new password", async () => {

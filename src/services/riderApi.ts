@@ -27,6 +27,7 @@ const storageKeys = {
   rememberedIdentifier: "esana-rider-remembered-identifier",
   demoPassword: "esana-rider-demo-password",
   passwordReset: "esana-rider-password-reset",
+  rideInProgress: "esana-rider-ride-in-progress",
 } as const;
 
 const wait = (milliseconds = 180) =>
@@ -201,11 +202,18 @@ export class LocalRiderApi implements RiderApi {
     };
     deliveries[index] = updated;
     this.writeDeliveries(deliveries);
+    const hasActiveDeliveries = deliveries.some(
+      (item) => item.assignedRiderId === session.rider.id && item.status === "DISPATCHED",
+    );
+    if (!hasActiveDeliveries) {
+      setStoredRideInProgress(false);
+    }
     return updated;
   }
 
   async resetDemoData() {
     this.writeDeliveries(cloneDeliveries());
+    setStoredRideInProgress(false);
     await wait(80);
   }
 }
@@ -303,6 +311,17 @@ export const riderApi: RiderApi =
 
 export const getRememberedIdentifier = () =>
   window.localStorage.getItem(storageKeys.rememberedIdentifier) ?? "";
+
+export const getStoredRideInProgress = () =>
+  window.localStorage.getItem(storageKeys.rideInProgress) === "true";
+
+export const setStoredRideInProgress = (inProgress: boolean) => {
+  if (inProgress) {
+    window.localStorage.setItem(storageKeys.rideInProgress, "true");
+  } else {
+    window.localStorage.removeItem(storageKeys.rideInProgress);
+  }
+};
 
 export const isCompletedStatus = (status: DeliveryStatus) =>
   status === "DELIVERED" || status === "COMPLETED";
