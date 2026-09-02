@@ -18,6 +18,14 @@ describe("rider delivery journey", () => {
     await user.click(screen.getByRole("button", { name: "Sign in" }));
 
     expect(await screen.findByText("#ES-10482")).toBeInTheDocument();
+    expect(screen.queryByText("DISPATCHED")).not.toBeInTheDocument();
+    expect(screen.queryByText(/ESANA Kitchen ·/)).not.toBeInTheDocument();
+    expect(screen.getByText("12 Scotts Road, #08-11, Singapore 228212")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "+65 9123 4567" })).toHaveAttribute("href", "tel:+6591234567");
+    expect(screen.getAllByRole("link", { name: "Start Ride" })[0]).toHaveAttribute(
+      "href",
+      expect.stringContaining("destination=12%20Scotts%20Road"),
+    );
     await user.click(screen.getAllByRole("button", { name: "View delivery" })[0]);
 
     expect(await screen.findByRole("heading", { name: "Delivery details" })).toBeInTheDocument();
