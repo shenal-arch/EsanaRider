@@ -42,7 +42,13 @@ export function LoginPage({ session, onAuthenticated }: LoginPageProps) {
   return (
     <main className="screen login-screen">
       <header className="login-screen__header">
-        <p className="brand">ESANA</p>
+        <img
+          className="login-logo"
+          src="/assets/esana-logo.svg"
+          alt="ESANA"
+          width="188"
+          height="60"
+        />
         <p className="product-label">RIDER DELIVERY</p>
         <h1>Welcome back</h1>
         <p>Sign in to view your assigned deliveries.</p>

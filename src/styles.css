@@ -181,6 +181,13 @@ a {
   text-align: center;
 }
 
+.login-logo {
+  display: block;
+  width: 188px;
+  height: 60px;
+  object-fit: contain;
+}
+
 .login-screen__header .product-label {
   font-size: 12px;
   font-weight: 500;
