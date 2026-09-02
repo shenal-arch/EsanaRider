@@ -50,14 +50,13 @@ export function ConfirmDeliveryDialog({
         </ul>
         {error ? <p className="form-error" role="alert">{error}</p> : null}
         <div className="confirm-dialog__actions">
-          <Button size="small" fullWidth={false} onClick={onConfirm} disabled={pending}>
+          <Button size="small" onClick={onConfirm} disabled={pending}>
             {pending ? "Confirming…" : "Confirm delivery"}
           </Button>
           <Button
             ref={cancelRef}
             size="small"
             variant="secondary"
-            fullWidth={false}
             onClick={onCancel}
             disabled={pending}
           >

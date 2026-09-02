@@ -860,7 +860,9 @@ a {
 
 .confirm-dialog__actions {
   display: flex;
-  gap: 12px;
+  width: 100%;
+  flex-direction: column;
+  gap: 10px;
   padding-top: 8px;
 }
 
