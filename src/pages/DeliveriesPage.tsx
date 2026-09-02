@@ -66,7 +66,6 @@ export function DeliveriesPage({ session, onLogout }: DeliveriesPageProps) {
     if (deliveries.length === 0) return;
     setRideInProgress(true);
     setStoredRideInProgress(true);
-    window.open(getStartRideUrl(deliveries), "_blank", "noopener,noreferrer");
   }
 
   const countLabel = `${deliveries.length} ${tab} ${deliveries.length === 1 ? "delivery" : "deliveries"}`;
@@ -133,14 +132,4 @@ export function DeliveriesPage({ session, onLogout }: DeliveriesPageProps) {
       ) : null}
     </main>
   );
-}
-
-function getStartRideUrl(deliveries: Delivery[]) {
-  const addresses = deliveries.map((delivery) => delivery.addressLines.join(", "));
-  const destination = addresses.at(-1) ?? "";
-  const parameters = new URLSearchParams({ api: "1", destination, travelmode: "driving" });
-  if (addresses.length > 1) {
-    parameters.set("waypoints", addresses.slice(0, -1).join("|"));
-  }
-  return `https://www.google.com/maps/dir/?${parameters.toString()}`;
 }
