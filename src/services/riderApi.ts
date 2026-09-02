@@ -23,7 +23,7 @@ export interface RiderApi {
 
 const storageKeys = {
   session: "esana-rider-session",
-  deliveries: "esana-rider-deliveries",
+  deliveries: "esana-rider-deliveries-v2",
   rememberedIdentifier: "esana-rider-remembered-identifier",
   demoPassword: "esana-rider-demo-password",
   passwordReset: "esana-rider-password-reset",

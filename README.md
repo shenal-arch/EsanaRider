@@ -9,7 +9,7 @@ A mobile-first React web app for restaurant-owned ESANA riders. The implementati
 - Active deliveries limited to the signed-in rider's `DISPATCHED` orders
 - Completed delivery history
 - Read-only order, customer, address, instructions, and payment details
-- Destination-first delivery cards with phone access and a Start Ride directions handoff
+- Destination-first delivery cards with customer phone access and a fixed multi-stop Start Ride action
 - Confirmation before marking an order as delivered
 - Assignment and status revalidation before saving
 - One-time `DISPATCHED` → `DELIVERED` transition

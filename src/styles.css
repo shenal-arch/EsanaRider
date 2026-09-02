@@ -396,6 +396,10 @@ a {
   padding: 32px 20px 24px;
 }
 
+.deliveries-screen--with-ride-action {
+  padding-bottom: 104px;
+}
+
 .deliveries-header {
   display: flex;
   min-height: 64px;
@@ -536,20 +540,19 @@ a {
   line-height: 23px;
 }
 
-.delivery-card__phone {
-  width: fit-content;
-  color: var(--secondary-dark);
+.delivery-card__customer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
   font-size: 14px;
   font-weight: 500;
   line-height: 18px;
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
-.delivery-card__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.delivery-card__customer a {
+  color: var(--secondary-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .delivery-card__view-button {
@@ -557,8 +560,21 @@ a {
   color: var(--secondary-dark);
 }
 
-.delivery-card__start-button {
+.ride-dock {
+  position: fixed;
+  z-index: 10;
+  bottom: 0;
+  left: 50%;
+  width: min(100%, 390px);
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  background: linear-gradient(to bottom, rgb(249 250 251 / 24%), var(--background) 22%);
+  pointer-events: none;
+}
+
+.ride-dock .button {
   text-decoration: none;
+  pointer-events: auto;
 }
 
 .status-badge {

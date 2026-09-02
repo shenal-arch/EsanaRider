@@ -9,7 +9,7 @@ describe("LocalRiderApi", () => {
     expect(session.rider.id).toBe(demoRider.id);
     expect(window.localStorage.getItem("esana-rider-session")).toBeNull();
     expect(window.sessionStorage.getItem("esana-rider-session")).not.toBeNull();
-    await expect(api.listDeliveries("active")).resolves.toHaveLength(2);
+    await expect(api.listDeliveries("active")).resolves.toHaveLength(10);
   });
 
   it("rejects invalid credentials", async () => {
@@ -28,7 +28,7 @@ describe("LocalRiderApi", () => {
     const completed = await api.markDelivered(delivery.id);
     expect(completed.status).toBe("DELIVERED");
     expect(completed.deliveredAt).toBeTruthy();
-    expect(await api.listDeliveries("active")).toHaveLength(1);
+    expect(await api.listDeliveries("active")).toHaveLength(9);
     expect((await api.listDeliveries("completed")).some((item) => item.id === delivery.id)).toBe(true);
 
     await expect(api.markDelivered(delivery.id)).rejects.toMatchObject({ code: "ALREADY_DELIVERED" });

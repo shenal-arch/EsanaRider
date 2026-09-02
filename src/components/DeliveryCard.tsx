@@ -10,7 +10,6 @@ interface DeliveryCardProps {
 export function DeliveryCard({ delivery, onOpen }: DeliveryCardProps) {
   const completed = delivery.status !== "DISPATCHED";
   const address = delivery.addressLines.join(", ");
-  const navigationUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
 
   return (
     <article className="delivery-card" aria-labelledby={`${delivery.id}-title`}>
@@ -22,29 +21,19 @@ export function DeliveryCard({ delivery, onOpen }: DeliveryCardProps) {
         <span>Delivery address</span>
         <p>{address}</p>
       </div>
-      <a className="delivery-card__phone" href={`tel:${delivery.customerPhone.replace(/\s/g, "")}`}>
-        {delivery.customerPhone}
-      </a>
-      <div className="delivery-card__actions">
-        <Button
-          className="delivery-card__view-button"
-          variant="ghost"
-          size="medium"
-          onClick={() => onOpen(delivery)}
-        >
-          {completed ? "View details" : "View delivery"}
-        </Button>
-        {!completed ? (
-          <a
-            className="button button--primary button--large button--full delivery-card__start-button"
-            href={navigationUrl}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Start Ride
-          </a>
-        ) : null}
-      </div>
+      <p className="delivery-card__customer">
+        <span>{delivery.customerName}</span>
+        <span aria-hidden="true">·</span>
+        <a href={`tel:${delivery.customerPhone.replace(/\s/g, "")}`}>{delivery.customerPhone}</a>
+      </p>
+      <Button
+        className="delivery-card__view-button"
+        variant="ghost"
+        size="medium"
+        onClick={() => onOpen(delivery)}
+      >
+        {completed ? "View details" : "View delivery"}
+      </Button>
     </article>
   );
 }
