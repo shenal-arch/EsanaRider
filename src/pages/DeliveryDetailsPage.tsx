@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/Button";
 import { ConfirmDeliveryDialog } from "../components/ConfirmDeliveryDialog";
 import { LoadingState } from "../components/LoadingState";
-import { RouteMap } from "../components/RouteMap";
 import { StatusBadge } from "../components/StatusBadge";
 import { isCompletedStatus, riderApi } from "../services/riderApi";
 import type { Delivery } from "../types";
@@ -92,8 +91,6 @@ export function DeliveryDetailsPage() {
         </Detail>
         <Detail label="Delivery instructions">{delivery.instructions}</Detail>
       </section>
-
-      <RouteMap delivery={delivery} />
 
       <section className="payment-status card">
         <span>Payment status</span>

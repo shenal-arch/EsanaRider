@@ -28,17 +28,22 @@ export interface Delivery {
   assignedRiderId: string;
   dispatchedAt: string;
   deliveredAt?: string;
-  route: {
-    distanceKm: number;
-    etaMinutes: number;
-    latitude: number;
-    longitude: number;
-  };
 }
 
 export interface LoginCredentials {
   identifier: string;
   password: string;
+  rememberMe: boolean;
+}
+
+export interface PasswordResetRequestResult {
+  message: string;
+  resetToken?: string;
+}
+
+export interface ResetPasswordInput {
+  token: string;
+  newPassword: string;
 }
 
 export class RiderApiError extends Error {

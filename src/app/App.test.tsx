@@ -28,4 +28,31 @@ describe("rider delivery journey", () => {
     expect(await screen.findByRole("heading", { name: "Delivery completed" })).toBeInTheDocument();
     expect(screen.getByText(/has been marked as delivered/)).toBeInTheDocument();
   });
+
+  it("resets the password from the login page and signs in with the new password", async () => {
+    const user = userEvent.setup();
+    render(
+      <MemoryRouter initialEntries={["/login"]}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    await user.click(await screen.findByRole("link", { name: "Forgot password?" }));
+    await user.type(screen.getByLabelText("Email address"), demoRider.email);
+    await user.click(screen.getByRole("button", { name: "Send reset link" }));
+
+    expect(await screen.findByRole("heading", { name: "Check your email" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Open demo reset link" }));
+    await user.type(screen.getByLabelText("New password"), "NewRider123!");
+    await user.type(screen.getByLabelText("Confirm password"), "NewRider123!");
+    await user.click(screen.getByRole("button", { name: "Update password" }));
+
+    expect(await screen.findByRole("heading", { name: "Password updated" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Back to sign in" }));
+    await user.type(screen.getByLabelText("Email or mobile number"), demoRider.email);
+    await user.type(screen.getByLabelText("Password"), "NewRider123!");
+    await user.click(screen.getByRole("button", { name: "Sign in" }));
+
+    expect(await screen.findByText("#ES-10482")).toBeInTheDocument();
+  });
 });

@@ -4,11 +4,11 @@ A mobile-first React web app for restaurant-owned ESANA riders. The implementati
 
 ## Included flow
 
-- Rider-only sign in and protected routes
+- Rider-only sign in with optional remembered access and protected routes
+- Forgot-password email request, single-use reset link, and new-password confirmation
 - Active deliveries limited to the signed-in rider's `DISPATCHED` orders
 - Completed delivery history
-- Read-only order, customer, address, instructions, payment, and route details
-- External Google Maps handoff from the route preview
+- Read-only order, customer, address, instructions, and payment details
 - Confirmation before marking an order as delivered
 - Assignment and status revalidation before saving
 - One-time `DISPATCHED` → `DELIVERED` transition
@@ -33,7 +33,11 @@ rider@esana.com
 Rider123!
 ```
 
-Reset the demo by clearing the site's local storage.
+In mock mode, requesting a reset for the demo email reveals an **Open demo reset link** button in place of an actual email. Production mode expects the server to email that link. A successful reset changes the demo password until the site's local storage is cleared.
+
+**Remember me** stores the rider session and email in local storage. Without it, the session is kept only for the current browser tab.
+
+Reset the full demo by clearing the site's local and session storage.
 
 ## Quality checks
 
@@ -57,6 +61,8 @@ The included HTTP adapter expects:
 | --- | --- | --- |
 | `POST` | `/auth/rider/login` | Return a `RiderSession` |
 | `POST` | `/auth/logout` | End the current session |
+| `POST` | `/auth/rider/password-reset/request` | Email a password reset link |
+| `POST` | `/auth/rider/password-reset/confirm` | Validate the link token and save the new password |
 | `GET` | `/rider/deliveries?status=active\|completed` | List the rider's permitted deliveries |
 | `GET` | `/rider/deliveries/:id` | Read one assigned delivery |
 | `POST` | `/rider/deliveries/:id/deliver` | Revalidate and mark delivered |

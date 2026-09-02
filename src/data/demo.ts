@@ -24,12 +24,6 @@ export const demoDeliveries: Delivery[] = [
     status: "DISPATCHED",
     assignedRiderId: "rider-001",
     dispatchedAt: "2026-08-31T10:15:00.000Z",
-    route: {
-      distanceKm: 2.4,
-      etaMinutes: 8,
-      latitude: 1.3067,
-      longitude: 103.8325,
-    },
   },
   {
     id: "delivery-10479",
@@ -44,12 +38,6 @@ export const demoDeliveries: Delivery[] = [
     status: "DISPATCHED",
     assignedRiderId: "rider-001",
     dispatchedAt: "2026-08-31T10:38:00.000Z",
-    route: {
-      distanceKm: 3.1,
-      etaMinutes: 11,
-      latitude: 1.2927,
-      longitude: 103.8572,
-    },
   },
   {
     id: "delivery-10461",
@@ -65,12 +53,6 @@ export const demoDeliveries: Delivery[] = [
     assignedRiderId: "rider-001",
     dispatchedAt: "2026-08-30T09:30:00.000Z",
     deliveredAt: "2026-08-30T10:02:00.000Z",
-    route: {
-      distanceKm: 1.8,
-      etaMinutes: 6,
-      latitude: 1.3088,
-      longitude: 103.8299,
-    },
   },
   {
     id: "delivery-10455",
@@ -86,11 +68,5 @@ export const demoDeliveries: Delivery[] = [
     assignedRiderId: "rider-001",
     dispatchedAt: "2026-08-29T11:00:00.000Z",
     deliveredAt: "2026-08-29T11:31:00.000Z",
-    route: {
-      distanceKm: 2.7,
-      etaMinutes: 9,
-      latitude: 1.2834,
-      longitude: 103.8607,
-    },
   },
 ];

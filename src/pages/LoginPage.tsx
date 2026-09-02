@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Button } from "../components/Button";
 import type { RiderSession } from "../types";
-import { riderApi } from "../services/riderApi";
+import { getRememberedIdentifier, riderApi } from "../services/riderApi";
 
 interface LoginPageProps {
   session: RiderSession | null;
@@ -11,8 +11,9 @@ interface LoginPageProps {
 
 export function LoginPage({ session, onAuthenticated }: LoginPageProps) {
   const navigate = useNavigate();
-  const [identifier, setIdentifier] = useState("");
+  const [identifier, setIdentifier] = useState(() => getRememberedIdentifier());
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(() => Boolean(getRememberedIdentifier()));
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -28,7 +29,7 @@ export function LoginPage({ session, onAuthenticated }: LoginPageProps) {
 
     setPending(true);
     try {
-      const authenticated = await riderApi.login({ identifier, password });
+      const authenticated = await riderApi.login({ identifier, password, rememberMe });
       onAuthenticated(authenticated);
       navigate("/deliveries", { replace: true });
     } catch (caught) {
@@ -73,6 +74,17 @@ export function LoginPage({ session, onAuthenticated }: LoginPageProps) {
             aria-invalid={Boolean(error)}
           />
         </label>
+        <div className="login-options">
+          <label className="remember-me">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(event) => setRememberMe(event.target.checked)}
+            />
+            <span>Remember me</span>
+          </label>
+          <Link to="/forgot-password">Forgot password?</Link>
+        </div>
         {error ? <p className="form-error" role="alert">{error}</p> : null}
         <Button type="submit" disabled={pending}>
           {pending ? "Signing in…" : "Sign in"}

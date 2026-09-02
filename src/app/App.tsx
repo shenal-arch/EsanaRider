@@ -6,7 +6,9 @@ import type { RiderSession } from "../types";
 import { DeliveredSuccessPage } from "../pages/DeliveredSuccessPage";
 import { DeliveriesPage } from "../pages/DeliveriesPage";
 import { DeliveryDetailsPage } from "../pages/DeliveryDetailsPage";
+import { ForgotPasswordPage } from "../pages/ForgotPasswordPage";
 import { LoginPage } from "../pages/LoginPage";
+import { ResetPasswordPage } from "../pages/ResetPasswordPage";
 
 export function App() {
   const [session, setSession] = useState<RiderSession | null>(null);
@@ -34,6 +36,8 @@ export function App() {
     <div className="app-shell">
       <Routes>
         <Route path="/login" element={<LoginPage session={session} onAuthenticated={setSession} />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route
           path="/deliveries"
           element={

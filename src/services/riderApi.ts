@@ -4,6 +4,8 @@ import {
   type Delivery,
   type DeliveryStatus,
   type LoginCredentials,
+  type PasswordResetRequestResult,
+  type ResetPasswordInput,
   type RiderSession,
 } from "../types";
 
@@ -11,6 +13,8 @@ export interface RiderApi {
   getSession(): Promise<RiderSession | null>;
   login(credentials: LoginCredentials): Promise<RiderSession>;
   logout(): Promise<void>;
+  requestPasswordReset(email: string): Promise<PasswordResetRequestResult>;
+  resetPassword(input: ResetPasswordInput): Promise<void>;
   listDeliveries(status: "active" | "completed"): Promise<Delivery[]>;
   getDelivery(id: string): Promise<Delivery>;
   markDelivered(id: string): Promise<Delivery>;
@@ -20,6 +24,9 @@ export interface RiderApi {
 const storageKeys = {
   session: "esana-rider-session",
   deliveries: "esana-rider-deliveries",
+  rememberedIdentifier: "esana-rider-remembered-identifier",
+  demoPassword: "esana-rider-demo-password",
+  passwordReset: "esana-rider-password-reset",
 } as const;
 
 const wait = (milliseconds = 180) =>
@@ -29,14 +36,24 @@ const cloneDeliveries = () => structuredClone(demoDeliveries);
 
 export class LocalRiderApi implements RiderApi {
   private readSession(): RiderSession | null {
-    const value = window.localStorage.getItem(storageKeys.session);
+    const value =
+      window.localStorage.getItem(storageKeys.session) ??
+      window.sessionStorage.getItem(storageKeys.session);
     if (!value) return null;
     try {
       return JSON.parse(value) as RiderSession;
     } catch {
       window.localStorage.removeItem(storageKeys.session);
+      window.sessionStorage.removeItem(storageKeys.session);
       return null;
     }
+  }
+
+  private writeSession(session: RiderSession, rememberMe: boolean) {
+    window.localStorage.removeItem(storageKeys.session);
+    window.sessionStorage.removeItem(storageKeys.session);
+    const storage = rememberMe ? window.localStorage : window.sessionStorage;
+    storage.setItem(storageKeys.session, JSON.stringify(session));
   }
 
   private readDeliveries(): Delivery[] {
@@ -73,12 +90,13 @@ export class LocalRiderApi implements RiderApi {
     return this.readSession();
   }
 
-  async login({ identifier, password }: LoginCredentials) {
+  async login({ identifier, password, rememberMe }: LoginCredentials) {
     await wait();
     const normalized = identifier.trim().toLowerCase();
     const recognized = normalized === demoRider.email || normalized === demoRider.phone.toLowerCase();
 
-    if (!recognized || password !== demoPassword || !demoRider.active) {
+    const currentPassword = window.localStorage.getItem(storageKeys.demoPassword) ?? demoPassword;
+    if (!recognized || password !== currentPassword || !demoRider.active) {
       throw new RiderApiError("The email, mobile number, or password is incorrect.", "INVALID_CREDENTIALS", 401);
     }
 
@@ -86,7 +104,12 @@ export class LocalRiderApi implements RiderApi {
       token: `demo-${crypto.randomUUID()}`,
       rider: structuredClone(demoRider),
     };
-    window.localStorage.setItem(storageKeys.session, JSON.stringify(session));
+    this.writeSession(session, rememberMe);
+    if (rememberMe) {
+      window.localStorage.setItem(storageKeys.rememberedIdentifier, identifier.trim());
+    } else {
+      window.localStorage.removeItem(storageKeys.rememberedIdentifier);
+    }
     this.readDeliveries();
     return session;
   }
@@ -94,6 +117,46 @@ export class LocalRiderApi implements RiderApi {
   async logout() {
     await wait(80);
     window.localStorage.removeItem(storageKeys.session);
+    window.sessionStorage.removeItem(storageKeys.session);
+  }
+
+  async requestPasswordReset(email: string) {
+    await wait(220);
+    const normalized = email.trim().toLowerCase();
+    const result: PasswordResetRequestResult = {
+      message: "If an active rider account matches that email, a password reset link has been sent.",
+    };
+
+    if (normalized === demoRider.email && demoRider.active) {
+      const token = crypto.randomUUID();
+      window.localStorage.setItem(
+        storageKeys.passwordReset,
+        JSON.stringify({ token, email: normalized, expiresAt: Date.now() + 30 * 60 * 1000 }),
+      );
+      result.resetToken = token;
+    }
+    return result;
+  }
+
+  async resetPassword({ token, newPassword }: ResetPasswordInput) {
+    await wait(240);
+    const value = window.localStorage.getItem(storageKeys.passwordReset);
+    let request: { token: string; email: string; expiresAt: number } | null = null;
+    try {
+      request = value ? JSON.parse(value) : null;
+    } catch {
+      window.localStorage.removeItem(storageKeys.passwordReset);
+    }
+    if (!request || request.token !== token || request.expiresAt < Date.now()) {
+      throw new RiderApiError("This password reset link is invalid or has expired.", "INVALID_RESET_TOKEN", 400);
+    }
+    if (newPassword.length < 8) {
+      throw new RiderApiError("Your password must contain at least 8 characters.", "WEAK_PASSWORD", 400);
+    }
+    window.localStorage.setItem(storageKeys.demoPassword, newPassword);
+    window.localStorage.removeItem(storageKeys.passwordReset);
+    window.localStorage.removeItem(storageKeys.session);
+    window.sessionStorage.removeItem(storageKeys.session);
   }
 
   async listDeliveries(status: "active" | "completed") {
@@ -151,7 +214,9 @@ class HttpRiderApi implements RiderApi {
   constructor(private readonly baseUrl: string) {}
 
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
-    const session = window.localStorage.getItem(storageKeys.session);
+    const session =
+      window.localStorage.getItem(storageKeys.session) ??
+      window.sessionStorage.getItem(storageKeys.session);
     const token = session ? (JSON.parse(session) as RiderSession).token : null;
     const response = await fetch(`${this.baseUrl}${path}`, {
       ...init,
@@ -171,7 +236,9 @@ class HttpRiderApi implements RiderApi {
   }
 
   async getSession() {
-    const value = window.localStorage.getItem(storageKeys.session);
+    const value =
+      window.localStorage.getItem(storageKeys.session) ??
+      window.sessionStorage.getItem(storageKeys.session);
     return value ? (JSON.parse(value) as RiderSession) : null;
   }
 
@@ -180,7 +247,15 @@ class HttpRiderApi implements RiderApi {
       method: "POST",
       body: JSON.stringify(credentials),
     });
-    window.localStorage.setItem(storageKeys.session, JSON.stringify(session));
+    window.localStorage.removeItem(storageKeys.session);
+    window.sessionStorage.removeItem(storageKeys.session);
+    const storage = credentials.rememberMe ? window.localStorage : window.sessionStorage;
+    storage.setItem(storageKeys.session, JSON.stringify(session));
+    if (credentials.rememberMe) {
+      window.localStorage.setItem(storageKeys.rememberedIdentifier, credentials.identifier.trim());
+    } else {
+      window.localStorage.removeItem(storageKeys.rememberedIdentifier);
+    }
     return session;
   }
 
@@ -189,7 +264,22 @@ class HttpRiderApi implements RiderApi {
       await this.request<void>("/auth/logout", { method: "POST" });
     } finally {
       window.localStorage.removeItem(storageKeys.session);
+      window.sessionStorage.removeItem(storageKeys.session);
     }
+  }
+
+  requestPasswordReset(email: string) {
+    return this.request<PasswordResetRequestResult>("/auth/rider/password-reset/request", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  resetPassword(input: ResetPasswordInput) {
+    return this.request<void>("/auth/rider/password-reset/confirm", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
   }
 
   listDeliveries(status: "active" | "completed") {
@@ -210,6 +300,9 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ?? "";
 
 export const riderApi: RiderApi =
   useMockApi || !apiBaseUrl ? new LocalRiderApi() : new HttpRiderApi(apiBaseUrl);
+
+export const getRememberedIdentifier = () =>
+  window.localStorage.getItem(storageKeys.rememberedIdentifier) ?? "";
 
 export const isCompletedStatus = (status: DeliveryStatus) =>
   status === "DELIVERED" || status === "COMPLETED";
