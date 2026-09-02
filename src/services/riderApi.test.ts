@@ -49,6 +49,21 @@ describe("LocalRiderApi", () => {
     expect(getStoredRideInProgress()).toBe(false);
   }, 10_000);
 
+  it("restores the presentation deliveries and Start Ride state on logout", async () => {
+    const api = new LocalRiderApi();
+    const credentials = { identifier: demoRider.email, password: demoPassword, rememberMe: false };
+    await api.login(credentials);
+    setStoredRideInProgress(true);
+    const [delivery] = await api.listDeliveries("active");
+    await api.markDelivered(delivery.id);
+
+    await api.logout();
+
+    expect(getStoredRideInProgress()).toBe(false);
+    await api.login(credentials);
+    await expect(api.listDeliveries("active")).resolves.toHaveLength(10);
+  });
+
   it("remembers the rider and session when requested", async () => {
     const api = new LocalRiderApi();
     await api.login({ identifier: demoRider.email, password: demoPassword, rememberMe: true });

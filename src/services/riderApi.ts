@@ -119,6 +119,8 @@ export class LocalRiderApi implements RiderApi {
     await wait(80);
     window.localStorage.removeItem(storageKeys.session);
     window.sessionStorage.removeItem(storageKeys.session);
+    this.writeDeliveries(cloneDeliveries());
+    setStoredRideInProgress(false);
   }
 
   async requestPasswordReset(email: string) {

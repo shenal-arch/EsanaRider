@@ -12,6 +12,7 @@ A mobile-first React web app for restaurant-owned ESANA riders. The implementati
 - Destination-first delivery cards with customer phone access and a fixed ride-status action
 - Persistent green **Start Ride** → orange **On route** state until every active order is delivered
 - Colombo, Sri Lanka sample delivery addresses for active and completed orders
+- Presentation-friendly mock logout that restores all sample deliveries and the Start Ride state
 - Confirmation before marking an order as delivered
 - Assignment and status revalidation before saving
 - One-time `DISPATCHED` → `DELIVERED` transition
